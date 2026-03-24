@@ -1,17 +1,35 @@
 package com.personal_finance_manager_api.dtos.requests;
 
-public class UpdateTransactionRequestDTO {
-    private Double amount;
-    private String description;
-    private String date;
-    private String category;
-    private String type;
+import com.personal_finance_manager_api.validation.annotations.AmountNotNegative;
+import com.personal_finance_manager_api.validation.annotations.TransactionTypeMustExist;
+import com.personal_finance_manager_api.validation.interfaces.HasAmount;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-    public Double getAmount() {
+import java.math.BigDecimal;
+
+public class UpdateTransactionRequestDTO implements HasAmount {
+
+    private String description;
+
+    @NotNull
+    @AmountNotNegative
+    private BigDecimal amount;
+
+    private String category;
+
+    @NotBlank(message = "Date cannot be blank")
+    private String date;
+
+    @NotNull(message = "Type cannot be null")
+    @TransactionTypeMustExist
+    private Integer type;
+
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -39,11 +57,11 @@ public class UpdateTransactionRequestDTO {
         this.category = category;
     }
 
-    public String getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 }

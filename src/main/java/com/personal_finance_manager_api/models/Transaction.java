@@ -2,6 +2,7 @@ package com.personal_finance_manager_api.models;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
 
@@ -12,15 +13,18 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private double amount;
+    private BigDecimal amount;
     private String description;
     private LocalDate date;
     private String category;
-    private String type;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToOne
+    @JoinColumn(name = "transaction_type_id", nullable = false)
+    private TransactionType transactionType;
 
     public Integer getId() {
         return id;
@@ -38,11 +42,11 @@ public class Transaction {
         this.description = description;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -74,11 +78,11 @@ public class Transaction {
         this.user = user;
     }
 
-    public String getType() {
-        return type;
+    public TransactionType getType() {
+        return transactionType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setType(TransactionType transactionType) {
+        this.transactionType = transactionType;
     }
 }

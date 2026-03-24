@@ -5,8 +5,10 @@ import com.personal_finance_manager_api.dtos.requests.UpdateTransactionRequestDT
 import com.personal_finance_manager_api.exceptions.ModelNotFoundException;
 import com.personal_finance_manager_api.helpers.Helpers;
 import com.personal_finance_manager_api.models.Transaction;
+import com.personal_finance_manager_api.models.TransactionType;
 import com.personal_finance_manager_api.models.User;
 import com.personal_finance_manager_api.repositories.TransactionRepository;
+import com.personal_finance_manager_api.repositories.TransactionTypeRepository;
 import com.personal_finance_manager_api.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,11 +28,18 @@ public class TransactionService {
     private final AuthService authService;
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    private final TransactionTypeRepository transactionTypeRepository;
 
-    private TransactionService(AuthService authService, TransactionRepository transactionRepository, UserRepository userRepository) {
+    private TransactionService(
+            AuthService authService,
+            TransactionRepository transactionRepository,
+            UserRepository userRepository,
+            TransactionTypeRepository transactionTypeRepository
+    ) {
         this.authService = authService;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
+        this.transactionTypeRepository = transactionTypeRepository;
     }
 
     public List<Transaction> getTransactions()
@@ -39,23 +48,17 @@ public class TransactionService {
         return transactionRepository.findAllByUserId(userId);
     }
 
-    public Transaction createTransaction(CreateTransactionRequestDTO request) throws RuntimeException {
+    public Transaction createTransaction(CreateTransactionRequestDTO request) throws RuntimeException, ModelNotFoundException {
         User user = this.getAuthenticatedUser();
         Transaction transaction = new Transaction();
         transaction.setAmount(request.getAmount());
         transaction.setDescription(request.getDescription());
         transaction.setCategory(request.getCategory());
         transaction.setUser(user);
-        transaction.setType(request.getType());
+        transaction.setType(this.getTransactionType(request.getType()));
         transaction.setDate(helpers.formatDate(request.getDate()));
 
         return transactionRepository.save(transaction);
-    }
-
-    private User getAuthenticatedUser() throws RuntimeException
-    {
-        Integer userId = authService.getAuthenticatedUserId().intValue();
-        return this.userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Authenticated user not found"));
     }
 
     public Transaction getTransactionById(Integer id) throws ModelNotFoundException {
@@ -64,13 +67,31 @@ public class TransactionService {
     }
 
     public Transaction updateTransaction(Integer id, UpdateTransactionRequestDTO request) throws ModelNotFoundException {
+        User user = this.getAuthenticatedUser();
         Transaction transaction = this.transactionRepository.findById(id).orElseThrow(() -> new ModelNotFoundException("Transaction not found"));
         transaction.setAmount(request.getAmount());
         transaction.setDescription(request.getDescription());
         transaction.setCategory(request.getCategory());
-        transaction.setType(request.getType());
+        transaction.setUser(user);
+        transaction.setType(this.getTransactionType(request.getType()));
         transaction.setDate(helpers.formatDate(request.getDate()));
 
         return transactionRepository.save(transaction);
+    }
+
+    public void deleteTransaction(Integer id) throws ModelNotFoundException {
+        Transaction transaction = this.transactionRepository.findById(id).orElseThrow(() -> new ModelNotFoundException("Transaction not found"));
+        this.transactionRepository.delete(transaction);
+    }
+
+    private User getAuthenticatedUser() throws RuntimeException
+    {
+        Integer userId = authService.getAuthenticatedUserId().intValue();
+        return this.userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Authenticated user not found"));
+    }
+
+    private TransactionType getTransactionType(Integer typeId) throws ModelNotFoundException
+    {
+        return this.transactionTypeRepository.findById(typeId).orElseThrow(() -> new ModelNotFoundException("Transaction type not found"));
     }
 }
