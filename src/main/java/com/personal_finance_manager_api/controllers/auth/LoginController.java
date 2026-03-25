@@ -37,6 +37,6 @@ public class LoginController {
             ));
         }
 
-        return responder.unauthorized("Invalid email or password");
+        return responder.badRequest("Invalid email or password");
     }
 }
