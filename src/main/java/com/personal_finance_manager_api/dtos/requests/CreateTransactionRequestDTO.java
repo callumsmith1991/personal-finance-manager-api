@@ -63,5 +63,9 @@ public class CreateTransactionRequestDTO implements HasAmount, TypeMustExist {
     public Integer getType() {
         return type;
     }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
 }
 
