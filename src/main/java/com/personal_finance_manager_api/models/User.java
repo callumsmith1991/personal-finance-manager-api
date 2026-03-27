@@ -3,6 +3,7 @@ package com.personal_finance_manager_api.models;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "users")
 public class User {
 
     @Id

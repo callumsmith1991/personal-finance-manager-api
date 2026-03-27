@@ -21,9 +21,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // Apply the interceptor only to user-specific routes
+        // Apply the interceptor only to user-specific routes (exclude register)
         registry.addInterceptor(userOwnershipInterceptor)
-                .addPathPatterns("/api/users/*");
+                .addPathPatterns("/api/users/*")
+                .excludePathPatterns("/api/users/register");
         registry.addInterceptor(transactionOwnershipInterceptor)
                 .addPathPatterns("/api/transactions/*");
     }

@@ -7,6 +7,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "transactions")
 public class Transaction {
 
     @Id

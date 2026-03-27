@@ -8,6 +8,7 @@ import com.personal_finance_manager_api.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -27,7 +28,7 @@ public class LoginController {
     }
 
     @PostMapping("/api/login")
-    public ResponseEntity<ApiResponse<Object>> login(LoginRequestDTO loginRequestDTO) {
+    public ResponseEntity<ApiResponse<Object>> login(@RequestBody LoginRequestDTO loginRequestDTO) {
         boolean isLoginSuccessful = userService.loginSuccessful(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
 
         if (isLoginSuccessful) {
