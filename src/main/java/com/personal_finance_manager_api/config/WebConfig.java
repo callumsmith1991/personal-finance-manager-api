@@ -1,5 +1,6 @@
 package com.personal_finance_manager_api.config;
 
+import com.personal_finance_manager_api.middleware.BudgetOwnership;
 import com.personal_finance_manager_api.middleware.TransactionOwnership;
 import com.personal_finance_manager_api.middleware.UserOwnership;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +13,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final UserOwnership userOwnershipInterceptor;
     private final TransactionOwnership transactionOwnershipInterceptor;
+    private final BudgetOwnership budgetOwnershipInterceptor;
 
     @Autowired
-    public WebConfig(UserOwnership userOwnershipInterceptor, TransactionOwnership transactionOwnershipInterceptor) {
+    public WebConfig(UserOwnership userOwnershipInterceptor, TransactionOwnership transactionOwnershipInterceptor, BudgetOwnership budgetOwnershipInterceptor) {
         this.userOwnershipInterceptor = userOwnershipInterceptor;
         this.transactionOwnershipInterceptor = transactionOwnershipInterceptor;
+        this.budgetOwnershipInterceptor = budgetOwnershipInterceptor;
     }
 
     @Override
@@ -27,5 +30,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/api/users/register");
         registry.addInterceptor(transactionOwnershipInterceptor)
                 .addPathPatterns("/api/transactions/*");
+        registry.addInterceptor(budgetOwnershipInterceptor)
+                .addPathPatterns("/api/budgets/*");
     }
 }

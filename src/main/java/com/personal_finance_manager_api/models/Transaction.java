@@ -23,7 +23,7 @@ public class Transaction {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "transaction_type_id", nullable = false)
     private TransactionType transactionType;
 

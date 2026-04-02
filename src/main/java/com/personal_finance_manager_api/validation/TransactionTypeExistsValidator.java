@@ -7,6 +7,6 @@ public class TransactionTypeExistsValidator implements ConstraintValidator<Trans
     @Override
     public boolean isValid(Integer value, jakarta.validation.ConstraintValidatorContext context) {
         if (value == null) return true;
-        return value == 0 || value == 1;
+        return value == 1 || value == 2;
     }
 }

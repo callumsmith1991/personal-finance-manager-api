@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Constraint(validatedBy = TransactionTypeExistsValidator.class)
 @Documented
 public @interface TransactionTypeMustExist {
-    String message() default "Transaction type must be either 0 (expense) or 1 (income)";
+    String message() default "Transaction type must be either 1 (expense) or 2 (income)";
     Class<?>[] groups() default {};
     Class<? extends jakarta.validation.Payload>[] payload() default {};
 }
