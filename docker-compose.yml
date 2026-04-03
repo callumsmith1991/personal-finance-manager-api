@@ -17,5 +17,14 @@ services:
       retries: 10
       interval: 10s
 
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: personal-finance-mailhog
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port
+    networks:
+      - default
+
 volumes:
   mysql_data:

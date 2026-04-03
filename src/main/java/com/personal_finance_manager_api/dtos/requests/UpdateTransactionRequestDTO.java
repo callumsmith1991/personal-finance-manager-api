@@ -2,23 +2,28 @@ package com.personal_finance_manager_api.dtos.requests;
 
 import com.personal_finance_manager_api.validation.annotations.AmountNotNegative;
 import com.personal_finance_manager_api.validation.annotations.TransactionTypeMustExist;
+import com.personal_finance_manager_api.validation.annotations.ValidDateFormat;
 import com.personal_finance_manager_api.validation.interfaces.HasAmount;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
 public class UpdateTransactionRequestDTO implements HasAmount {
 
+    @Size(min = 1, max = 255, message = "Description must be between 1 and 255 characters")
     private String description;
 
-    @NotNull
+    @NotNull(message = "Amount cannot be null")
     @AmountNotNegative
     private BigDecimal amount;
 
+    @Size(min = 1, max = 50, message = "Category must be between 1 and 50 characters")
     private String category;
 
     @NotBlank(message = "Date cannot be blank")
+    @ValidDateFormat
     private String date;
 
     @NotNull(message = "Type cannot be null")
