@@ -2,6 +2,7 @@ package com.personal_finance_manager_api.services;
 
 import com.personal_finance_manager_api.dtos.requests.CreateTransactionRequestDTO;
 import com.personal_finance_manager_api.dtos.requests.UpdateTransactionRequestDTO;
+import com.personal_finance_manager_api.dtos.responses.PagedTransactionResponseDTO;
 import com.personal_finance_manager_api.dtos.responses.TransactionResponseDTO;
 import com.personal_finance_manager_api.exceptions.ModelNotFoundException;
 import com.personal_finance_manager_api.helpers.Helpers;
@@ -10,10 +11,11 @@ import com.personal_finance_manager_api.models.User;
 import com.personal_finance_manager_api.notifications.OverBudgetNotification;
 import com.personal_finance_manager_api.repositories.TransactionRepository;
 import com.personal_finance_manager_api.repositories.UserRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import org.springframework.data.domain.Pageable; // ✅
 import java.time.LocalDate;
-import java.util.List;
 
 @Component
 public class TransactionService {
@@ -41,10 +43,16 @@ public class TransactionService {
         this.helpers = helpers;
     }
 
-    public List<Transaction> getTransactions()
+    public PagedTransactionResponseDTO getTransactions(Pageable pageable)
     {
-        Integer userId = authService.getAuthenticatedUserId().intValue();
-        return transactionRepository.findAllByUserId(userId);
+        Long userId = authService.getAuthenticatedUserId();
+        Page<Transaction> transactions = transactionRepository.findAllByUserId(userId, pageable);
+        return new PagedTransactionResponseDTO(
+                transactions.getNumber(),
+                transactions.getTotalPages(),
+                transactions.getTotalElements(),
+                transactions.getContent().stream().map(this::mapToDTO).toList()
+        );
     }
 
     public TransactionResponseDTO createTransaction(CreateTransactionRequestDTO request) throws RuntimeException, ModelNotFoundException {
@@ -67,9 +75,10 @@ public class TransactionService {
         return this.mapToDTO(saved);
     }
 
-    public Transaction getTransactionById(Integer id) throws ModelNotFoundException {
-        return transactionRepository.findById(id)
+    public TransactionResponseDTO getTransactionById(Integer id) throws ModelNotFoundException {
+        Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new ModelNotFoundException("Transaction not found"));
+        return this.mapToDTO(transaction);
     }
 
     public TransactionResponseDTO updateTransaction(Integer id, UpdateTransactionRequestDTO request) throws ModelNotFoundException {

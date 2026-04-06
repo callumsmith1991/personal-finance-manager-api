@@ -8,12 +8,18 @@ import com.personal_finance_manager_api.models.Transaction;
 import com.personal_finance_manager_api.services.TransactionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Pageable; // ✅import java.text.ParseException;
+
 import java.text.ParseException;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @Validated
@@ -28,8 +34,23 @@ public class TransactionController {
     }
 
     @GetMapping("/api/transactions")
-    public ResponseEntity<ApiResponse<Object>> index() {
-        return this.responder.success(this.service.getTransactions());
+    public ResponseEntity<ApiResponse<Object>> index(
+            @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number must be zero or a positive integer") Integer page,
+            @RequestParam(defaultValue = "date") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction
+    ) {
+        // Validate sortBy against allowed fields to prevent PropertyReferenceException
+        Set<String> allowedSortFields = Set.of("date", "amount", "id");
+        if (!allowedSortFields.contains(sortBy)) {
+            throw new IllegalArgumentException("Invalid sortBy field: " + sortBy);
+        }
+
+        Sort sort = direction.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, 10, sort);
+        return this.responder.success(this.service.getTransactions(pageable));
     }
 
     @PostMapping("/api/transactions")
